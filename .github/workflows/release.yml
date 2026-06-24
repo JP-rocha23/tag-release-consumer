@@ -1,0 +1,31 @@
+name: Create Tag and Release
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  release:
+    name: Create GitHub Tag and Release
+    runs-on: ubuntu-latest
+
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create tag and release
+        uses: JP-rocha23/action-tag-release@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-title: ${{ github.event.pull_request.title }}
+          pr-body: ${{ github.event.pull_request.body }}
+          pr-labels: ${{ toJson(github.event.pull_request.labels.*.name) }}
